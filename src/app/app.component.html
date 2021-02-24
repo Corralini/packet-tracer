@@ -4,10 +4,9 @@
 <input  [formControl]="mask" id="mask">
 <p *ngIf="maskDecimal">Máscara decimal: {{maskDecimal.split('.')[0]}}.{{maskDecimal.split('.')[1]}}.{{maskDecimal.split('.')[2]}}.{{maskDecimal.split('.')[3]}}</p>
 <br>
-<button *ngIf="routers.length === 0" (click)="createRouter()">Crear router</button>
+<button *ngIf="routers.length === 0" (click)="init()">Crear router</button>
 <div *ngFor="let router of routers; let idx = index">
   <p>nombre: <b>{{router.nombre}}</b></p>
-  <button (click)="deleteRouter(idx)">Borrar router</button>
   <p><b>Interfaces:</b></p>
   <div *ngFor="let interfaz of router.interfaces">
     <p>Interfaz: {{interfaz.nombre}}</p>
@@ -25,10 +24,10 @@
       <p>- {{connection.router.nombre}}</p>
     </div>
     <div *ngIf="connection.red">
-      <p>- {{connection.red.nombre}}</p>
+        <p>- {{connection.red.red.nombre}}</p>
     </div>
   </div>
   <button (click)="createAssociatedRouter(idx)">Crear router asociado</button>
-  <button (click)="createRouter()">Crear red de equipos</button>
+  <button (click)="createAssociatedNet(idx)">Crear red de equipos</button>
   <hr>
 </div>
