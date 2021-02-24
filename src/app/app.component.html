@@ -11,6 +11,13 @@
   <p><b>Interfaces:</b></p>
   <div *ngFor="let interfaz of router.interfaces">
     <p>Interfaz: {{interfaz.nombre}}</p>
+    <p>Máscara: {{interfaz.mask}}</p>
+    <p>*Subred: {{interfaz.red.subred}}</p>
+    <p>Nombre: {{interfaz.red.nombre}}</p>
+    <p>Broadcast: {{interfaz.red.broadcast}}</p>
+    <p>Ip Router: {{interfaz.red.ipRouter}}</p>
+    <p>Ip Primer Equipo: {{interfaz.red.firstIp}}</p>
+    <p>Ip ültimo Equipo: {{interfaz.red.lastIp}}</p>
   </div>
   <p><b>Conexiones:</b></p>
   <div *ngFor="let connection of router.connections">
