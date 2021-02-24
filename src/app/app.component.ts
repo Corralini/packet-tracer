@@ -23,7 +23,7 @@ export class AppComponent {
   subredIps: Subred [] = [];
   subnetsCount = 0;
 
-  calculateMask() {
+  calculateMask(): void {
     this.maskDecimal = '';
     this.netmask = ('1'.repeat(parseInt(this.mask.value, 10)) + '0'.repeat(32 - parseInt(this.mask.value, 10)));
     for (let i = 0; i < this.netmask.length; i = i + 8) {
@@ -32,7 +32,7 @@ export class AppComponent {
     console.log('mascara' + this.maskDecimal);
   }
 
-  calculateType() {
+  calculateType(): void {
     const first = this.ip.value.split('.')[0];
     if (first >= 1 && first <= 126) {
       this.ipType = 'A';
@@ -62,7 +62,7 @@ export class AppComponent {
 
   }
 
-  calculateSubnets() {
+  calculateSubnets(): void {
     let base;
     let maskAux;
     for (let i = 0; i < this.netmask.length; i = i + 8) {
@@ -125,7 +125,7 @@ export class AppComponent {
     console.log(this.subredIps);
   }
 
-  createSubnet(subredIp: string, broadcastIp: string) {
+  createSubnet(subredIp: string, broadcastIp: string): void {
     this.subredIps.push({
       subred: subredIp,
       used: false,
@@ -137,7 +137,7 @@ export class AppComponent {
     });
   }
 
-  binToDec(num) {
+  binToDec(num): number {
     let dec = 0;
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < num.length; i++) {
@@ -147,14 +147,14 @@ export class AppComponent {
     return dec;
   }
 
-  init() {
+  init(): void {
     this.calculateType();
     this.calculateMask();
     this.calculateSubnets();
     this.createRouter();
   }
 
-  createRouter() {
+  createRouter(): Router {
     console.log('create router', this.ip.value, this.mask.value);
     const router: Router = {
       nombre: 'Router' + this.letters.charAt(this.routerIdx).toUpperCase(),
@@ -166,12 +166,12 @@ export class AppComponent {
     return router;
   }
 
-  deleteRouter(indx: number) {
+/*  deleteRouter(indx: number): void {
     console.log('Borrando ' + indx);
     this.routers.splice(indx, 1);
-  }
+  }*/
 
-  createAssociatedRouter(indx: number) {
+  createAssociatedRouter(indx: number): void {
     console.log('Crear router asociado');
     if (this.subredIps.filter(s => s.used === false)[0]) {
       const newRouter: Router = this.createRouter();
@@ -189,7 +189,7 @@ export class AppComponent {
     }
   }
 
-  createAssociatedNet(indx: number) {
+  createAssociatedNet(indx: number): void {
     console.log('Create red asociada');
     if (this.subredIps.filter(s => s.used === false)[0]) {
       const routerAsociado = this.routers[indx];
@@ -225,7 +225,7 @@ export class AppComponent {
     return routerInterface;
   }
 
-  calculateNextIp(ip: string) {
+  calculateNextIp(ip: string): string {
     const ipSplitted = ip.split('.');
     let p1 = parseInt(ipSplitted[0], 10);
     let p2 = parseInt(ipSplitted[1], 10);
@@ -258,7 +258,7 @@ export class AppComponent {
     return p1 + '.' + p2 + '.' + p3 + '.' + p4;
   }
 
-  calculatePreviousIp(ip: string) {
+  calculatePreviousIp(ip: string): string {
     const ipSplitted = ip.split('.');
     let p1 = parseInt(ipSplitted[0], 10);
     let p2 = parseInt(ipSplitted[1], 10);
