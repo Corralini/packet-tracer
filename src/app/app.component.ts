@@ -166,10 +166,10 @@ export class AppComponent {
     return router;
   }
 
-/*  deleteRouter(indx: number): void {
-    console.log('Borrando ' + indx);
-    this.routers.splice(indx, 1);
-  }*/
+  /*  deleteRouter(indx: number): void {
+      console.log('Borrando ' + indx);
+      this.routers.splice(indx, 1);
+    }*/
 
   createAssociatedRouter(indx: number): void {
     console.log('Crear router asociado');
@@ -290,4 +290,16 @@ export class AppComponent {
 
     return p1 + '.' + p2 + '.' + p3 + '.' + p4;
   }
+
+  createAssociatedRouterInterface(idx: number, interfaceIdx: number): void {
+    console.log('Crear router asociado a interfaz');
+    const routerAsociado = this.routers[idx];
+    const interdazAsociada = routerAsociado.interfaces[interfaceIdx];
+    if (this.subredIps.filter(s => s.used === false)[0]) {
+      console.log('ESTO ESTÁ SIN FASER');
+    } else {
+      console.error('No quedan subredes disponibles');
+    }
+  }
+
 }
