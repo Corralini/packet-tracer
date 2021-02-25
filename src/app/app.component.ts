@@ -194,6 +194,7 @@ export class AppComponent {
     if (this.subredIps.filter(s => s.used === false)[0]) {
       const routerAsociado = this.routers[indx];
       const interfaz = this.createInterface();
+      interfaz.disableLinkRouter = true;
       interfaz.nombre = 'GigabitEthernet' + (routerAsociado.interfaces.length) + '/0';
       routerAsociado.interfaces.push({...interfaz});
       routerAsociado.connections.push({red: interfaz});
@@ -208,7 +209,8 @@ export class AppComponent {
     this.subredIps.filter(sub => sub.subred === subred.subred)[0].used = true;
     return {
       mask: this.maskDecimal,
-      red: subred
+      red: subred,
+      show: false
     };
   }
 
@@ -296,10 +298,42 @@ export class AppComponent {
     const routerAsociado = this.routers[idx];
     const interdazAsociada = routerAsociado.interfaces[interfaceIdx];
     if (this.subredIps.filter(s => s.used === false)[0]) {
-      console.log('ESTO ESTÁ SIN FASER');
+      const newRouter = this.createRouter();
+      const newInterfaz = {...interdazAsociada};
+      newInterfaz.nombre = 'GigabitEthernet' + (newRouter.interfaces.length) + '/0';
+      newInterfaz.red = {...newInterfaz.red};
+      newInterfaz.red.ipRouter = newInterfaz.red.firstIp;
+      newRouter.interfaces.push(newInterfaz);
+      newRouter.connections.push({router: routerAsociado});
+      routerAsociado.connections.push({
+        router: newRouter
+      });
+      this.routers.forEach((routerIterate) => {
+        routerIterate.interfaces.filter((interfaceSearch) => interfaceSearch.red.subred === interdazAsociada.red.subred).forEach(
+          (interfaz) => this.interfaceNextIpFirst(interfaz)
+        );
+      });
     } else {
       console.error('No quedan subredes disponibles');
     }
+  }
+
+  interfaceNextIpFirst(routerInterface: Interface): Interface {
+    routerInterface.red = {...routerInterface.red};
+    routerInterface.red.firstIp = this.calculateNextIp(routerInterface.red.firstIp);
+    return routerInterface;
+  }
+
+  generatePacketTraceCommands(router: Router): void {
+    console.log('Generando codigo packet tracer');
+  }
+
+  restart() {
+    this.routers = [];
+    this.subredIps = [];
+    this.subnetsCount = 0;
+    this.routerIdx = 0;
+    this.maskDecimal = undefined;
   }
 
 }

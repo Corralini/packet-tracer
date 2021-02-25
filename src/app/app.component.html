@@ -1,36 +1,66 @@
-<label for="ip">Ip</label>
-<input [formControl]="ip" id="ip">
-<label for="mask">/</label>
-<input [formControl]="mask" id="mask">
+<form class="mt-2 ml-1">
+  <div class="form-row align-items-center">
+    <div class="col-auto">
+      <label class="sr-only" for="ip">Ip</label>
+      <input [formControl]="ip" type="text" class="form-control mb-2" id="ip" placeholder="xxx.xxx.xxx.0">
+    </div>
+    <div class="col-auto">
+      <label class="sr-only" for="mask">///</label>
+      <input [formControl]="mask" type="text" class="form-control mb-2" id="mask" placeholder="xx">
+    </div>
+    <div class="col-auto">
+      <button type="button" class="btn btn-primary mb-2" *ngIf="routers.length === 0" (click)="init()">Crear router
+      </button>
+      <button type="button" class="btn btn-primary mb-2" *ngIf="routers.length > 0" (click)="restart()">Reset
+      </button>
+    </div>
+  </div>
+</form>
 <p *ngIf="maskDecimal">Máscara decimal: {{maskDecimal.split('.')[0]}}.{{maskDecimal.split('.')[1]}}
   .{{maskDecimal.split('.')[2]}}.{{maskDecimal.split('.')[3]}}</p>
 <br>
-<button *ngIf="routers.length === 0" (click)="init()">Crear router</button>
-<div *ngFor="let router of routers; let idx = index">
-  <p>nombre: <b>{{router.nombre}}</b></p>
-  <p><b>Interfaces:</b></p>
-  <div *ngFor="let interfaz of router.interfaces; let interfaceIdx = index">
-    <p>Interfaz: {{interfaz.nombre}}</p>
-    <p>Máscara: {{interfaz.mask}}</p>
-    <p>*Subred: {{interfaz.red.subred}}</p>
-    <p>Nombre: {{interfaz.red.nombre}}</p>
-    <p>Broadcast: {{interfaz.red.broadcast}}</p>
-    <p>Ip Router: {{interfaz.red.ipRouter}}</p>
-    <p>Ip Primer Equipo: {{interfaz.red.firstIp}}</p>
-    <p>Ip ültimo Equipo: {{interfaz.red.lastIp}}</p>
-    <button (click)="createAssociatedRouterInterface(idx, interfaceIdx)">Crear router asociado a la
-      interfaz {{interfaz.nombre}}</button>
-  </div>
-  <p><b>Conexiones:</b></p>
-  <div *ngFor="let connection of router.connections">
-    <div *ngIf="connection.router">
-      <p>- {{connection.router.nombre}}</p>
-    </div>
-    <div *ngIf="connection.red">
-      <p>- {{connection.red.red.nombre}}</p>
-    </div>
-  </div>
-  <button (click)="createAssociatedRouter(idx)">Crear router asociado</button>
-  <button (click)="createAssociatedNet(idx)">Crear red de equipos</button>
-  <hr>
-</div>
+<ngb-accordion #acc="ngbAccordion">
+  <ngb-panel *ngFor="let router of routers; let idx = index" [title]="router.nombre">
+    <ng-template ngbPanelContent>
+      <button type="button" class="btn btn-primary mb-2" *ngIf="router.interfaces.length > 0" (click)="generatePacketTraceCommands(router)">Configuración Packet Tracer</button>
+      <p><b>Interfaces:</b></p>
+      <div *ngFor="let interfaz of router.interfaces; let interfaceIdx = index">
+        <p>
+          <button type="button" class="btn btn-outline-primary" (click)="interfaz.show = !interfaz.show"
+                  aria-controls="collapseExample">
+            {{interfaz.nombre}}
+          </button>
+        </p>
+
+        <div #collapse="ngbCollapse" [(ngbCollapse)]="!interfaz.show">
+          <div class="card">
+            <div class="card-body">
+              <p>Máscara: {{interfaz.mask}}</p>
+              <p>*Subred: {{interfaz.red.subred}}</p>
+              <p>Nombre: {{interfaz.red.nombre}}</p>
+              <p>Broadcast: {{interfaz.red.broadcast}}</p>
+              <p>Ip Router: {{interfaz.red.ipRouter}}</p>
+              <p>Ip Primer Equipo: {{interfaz.red.firstIp}}</p>
+              <p>Ip ültimo Equipo: {{interfaz.red.lastIp}}</p>
+              <button *ngIf="!interfaz.disableLinkRouter" (click)="createAssociatedRouterInterface(idx, interfaceIdx)"
+                      class="btn btn-primary mb-2">Crear router asociado a la
+                interfaz {{interfaz.nombre}}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p><b>Conexiones:</b></p>
+      <div *ngFor="let connection of router.connections">
+        <div *ngIf="connection.router">
+          <p>- {{connection.router.nombre}}</p>
+        </div>
+        <div *ngIf="connection.red">
+          <p>- {{connection.red.red.nombre}}</p>
+        </div>
+      </div>
+      <button (click)="createAssociatedRouter(idx)" class="btn btn-primary mb-2">Crear router asociado</button>
+      <button (click)="createAssociatedNet(idx)" class="btn btn-primary mb-2 ml-2">Crear red de equipos</button>
+    </ng-template>
+  </ngb-panel>
+</ngb-accordion>
