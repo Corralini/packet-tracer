@@ -3,6 +3,7 @@ import {Router} from './model/router';
 import {FormControl} from '@angular/forms';
 import {Subred} from './model/subred';
 import {Interface} from './model/interface';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
 
 @Component({
@@ -11,6 +12,9 @@ import {Interface} from './model/interface';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+
+  constructor(private modalService: NgbModal) {
+  }
 
   ip = new FormControl('');
   mask = new FormControl('');
@@ -22,12 +26,18 @@ export class AppComponent {
   ipType;
   subredIps: Subred [] = [];
   subnetsCount = 0;
+  selectedRouter: Router;
+  config: string;
+
 
   calculateMask(): void {
     this.maskDecimal = '';
     this.netmask = ('1'.repeat(parseInt(this.mask.value, 10)) + '0'.repeat(32 - parseInt(this.mask.value, 10)));
     for (let i = 0; i < this.netmask.length; i = i + 8) {
-      this.maskDecimal += this.binToDec(this.netmask.substring(i, i + 8)) + '.';
+      this.maskDecimal += this.binToDec(this.netmask.substring(i, i + 8));
+      if (i !== 24) {
+        this.maskDecimal += '.';
+      }
     }
     console.log('mascara' + this.maskDecimal);
   }
@@ -324,11 +334,25 @@ export class AppComponent {
     return routerInterface;
   }
 
-  generatePacketTraceCommands(router: Router): void {
+  generatePacketTraceCommands(router: Router, modal: any): void {
     console.log('Generando codigo packet tracer');
+    this.config = 'en \n';
+    router.interfaces.forEach(value => {
+      this.config += 'conf t \n';
+      this.config += `int ${value.nombre} \n`;
+      this.config += `ip address ${value.red.ipRouter} ${value.mask} \n`;
+      this.config += 'no shutdown \n';
+      this.config += 'exit \n';
+    });
+    this.config += 'exit \n';
+    this.createRoutingTable(router);
+    console.log(this.config);
+    this.selectedRouter = router;
+    this.openModal(modal);
+
   }
 
-  restart() {
+  restart(): void {
     this.routers = [];
     this.subredIps = [];
     this.subnetsCount = 0;
@@ -336,4 +360,24 @@ export class AppComponent {
     this.maskDecimal = undefined;
   }
 
+  openModal(content): void {
+    this.modalService.open(content);
+  }
+
+  createRoutingTable(router: Router): void {
+    let outNets = this.subredIps.filter(subred => subred.used === true);
+    router.interfaces.forEach(interfaceRouter => {
+      outNets = outNets.filter(usNet => usNet.subred !== interfaceRouter.red.subred);
+    });
+
+    console.log('outNets', outNets);
+    let routersWithNet: Router[];
+    if (outNets && outNets.length > 0) {
+      routersWithNet = this.routers.filter(value => value !== router);
+      outNets.forEach(outNet => {
+        routersWithNet = routersWithNet.filter(rout => rout.interfaces.find(value => value.red.subred === outNet.subred));
+      });
+      console.log(routersWithNet);
+    }
+  }
 }

@@ -16,14 +16,13 @@
     </div>
   </div>
 </form>
-<p *ngIf="maskDecimal">Máscara decimal: {{maskDecimal.split('.')[0]}}.{{maskDecimal.split('.')[1]}}
-  .{{maskDecimal.split('.')[2]}}.{{maskDecimal.split('.')[3]}}</p>
+<p *ngIf="maskDecimal">Máscara decimal: {{maskDecimal}}</p>
 <br>
 <ngb-accordion #acc="ngbAccordion">
   <ngb-panel *ngFor="let router of routers; let idx = index" [title]="router.nombre">
     <ng-template ngbPanelContent>
       <button type="button" class="btn btn-primary mb-2" *ngIf="router.interfaces.length > 0"
-              (click)="generatePacketTraceCommands(router)">Configuración Packet Tracer
+              (click)="generatePacketTraceCommands(router, packet)">Configuración Packet Tracer
       </button>
       <p><b>Interfaces:</b></p>
       <div *ngFor="let interfaz of router.interfaces; let interfaceIdx = index">
@@ -80,3 +79,16 @@
     </ng-template>
   </ngb-panel>
 </ngb-accordion>
+
+
+<ng-template #packet let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{selectedRouter.nombre}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <pre>{{config}}</pre>
+  </div>
+</ng-template>
