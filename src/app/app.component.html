@@ -22,7 +22,9 @@
 <ngb-accordion #acc="ngbAccordion">
   <ngb-panel *ngFor="let router of routers; let idx = index" [title]="router.nombre">
     <ng-template ngbPanelContent>
-      <button type="button" class="btn btn-primary mb-2" *ngIf="router.interfaces.length > 0" (click)="generatePacketTraceCommands(router)">Configuración Packet Tracer</button>
+      <button type="button" class="btn btn-primary mb-2" *ngIf="router.interfaces.length > 0"
+              (click)="generatePacketTraceCommands(router)">Configuración Packet Tracer
+      </button>
       <p><b>Interfaces:</b></p>
       <div *ngFor="let interfaz of router.interfaces; let interfaceIdx = index">
         <p>
@@ -36,7 +38,7 @@
           <div class="card">
             <div class="card-body">
               <p>Máscara: {{interfaz.mask}}</p>
-              <p>*Subred: {{interfaz.red.subred}}</p>
+              <p>Subred: {{interfaz.red.subred}}</p>
               <p>Nombre: {{interfaz.red.nombre}}</p>
               <p>Broadcast: {{interfaz.red.broadcast}}</p>
               <p>Ip Router: {{interfaz.red.ipRouter}}</p>
@@ -56,7 +58,21 @@
           <p>- {{connection.router.nombre}}</p>
         </div>
         <div *ngIf="connection.red">
-          <p>- {{connection.red.red.nombre}}</p>
+          <p>
+            <button type="button" class="btn btn-outline-primary" (click)="connection.show = !connection.show"
+                    aria-controls="collapseExample">
+              {{connection.red.red.nombre}}
+            </button>
+          </p>
+
+          <div #collapse="ngbCollapse" [(ngbCollapse)]="!connection.show">
+            <div class="card">
+              <div class="card-body">
+                <p>Red: {{connection.red.red.subred}}</p>
+                <p>Broadcast: {{connection.red.red.broadcast}}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <button (click)="createAssociatedRouter(idx)" class="btn btn-primary mb-2">Crear router asociado</button>

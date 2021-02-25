@@ -176,10 +176,10 @@ export class AppComponent {
     if (this.subredIps.filter(s => s.used === false)[0]) {
       const newRouter: Router = this.createRouter();
       const routerAsociado = this.routers[indx];
-      routerAsociado.connections.push({router: newRouter});
+      routerAsociado.connections.push({router: newRouter, show: false});
 
       const interfazNewRouter = this.configureNewRouterIterface(this.createInterface(), newRouter.interfaces.length);
-      newRouter.connections.push({router: routerAsociado});
+      newRouter.connections.push({router: routerAsociado, show: false});
       newRouter.interfaces.push(interfazNewRouter);
 
       routerAsociado.interfaces.push(this.configureNewRouterIterface({...interfazNewRouter}, routerAsociado.interfaces.length, true));
@@ -197,7 +197,7 @@ export class AppComponent {
       interfaz.disableLinkRouter = true;
       interfaz.nombre = 'GigabitEthernet' + (routerAsociado.interfaces.length) + '/0';
       routerAsociado.interfaces.push({...interfaz});
-      routerAsociado.connections.push({red: interfaz});
+      routerAsociado.connections.push({red: interfaz, show: false});
     } else {
       console.error('No quedan subredes disponibles');
     }
@@ -304,7 +304,7 @@ export class AppComponent {
       newInterfaz.red = {...newInterfaz.red};
       newInterfaz.red.ipRouter = newInterfaz.red.firstIp;
       newRouter.interfaces.push(newInterfaz);
-      newRouter.connections.push({router: routerAsociado});
+      newRouter.connections.push({router: routerAsociado, show: false});
       routerAsociado.connections.push({
         router: newRouter
       });

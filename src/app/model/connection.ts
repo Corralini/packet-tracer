@@ -4,4 +4,5 @@ import {Subred} from './subred';
 export interface Connection {
   router?: Router;
   red?: Subred;
+  show?: boolean;
 }
