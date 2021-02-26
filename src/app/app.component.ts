@@ -4,6 +4,7 @@ import {FormControl} from '@angular/forms';
 import {Subred} from './model/subred';
 import {Interface} from './model/interface';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {RoutingTable} from './model/RoutingTable';
 
 
 @Component({
@@ -344,8 +345,11 @@ export class AppComponent {
       this.config += 'no shutdown \n';
       this.config += 'exit \n';
     });
+    const routingTables = this.createRoutingTable(router);
+    routingTables.forEach(routingTable => {
+      this.config += `ip route ${routingTable.redDestino} ${routingTable.mask} ${routingTable.puertaEnlace} \n`;
+    });
     this.config += 'exit \n';
-    this.createRoutingTable(router);
     console.log(this.config);
     this.selectedRouter = router;
     this.openModal(modal);
@@ -364,20 +368,41 @@ export class AppComponent {
     this.modalService.open(content);
   }
 
-  createRoutingTable(router: Router): void {
+  createRoutingTable(router: Router): RoutingTable[] {
     let outNets = this.subredIps.filter(subred => subred.used === true);
+    const routingTable: RoutingTable[] = [];
     router.interfaces.forEach(interfaceRouter => {
       outNets = outNets.filter(usNet => usNet.subred !== interfaceRouter.red.subred);
     });
-
     console.log('outNets', outNets);
-    let routersWithNet: Router[];
     if (outNets && outNets.length > 0) {
-      routersWithNet = this.routers.filter(value => value !== router);
-      outNets.forEach(outNet => {
-        routersWithNet = routersWithNet.filter(rout => rout.interfaces.find(value => value.red.subred === outNet.subred));
+      outNets.forEach(net => {
+        let routersWithNet: Router[];
+        routersWithNet = this.routers.filter(value => value !== router);
+        console.log('routers with net', routersWithNet);
+
+        routersWithNet.forEach(routerNet => {
+          if (routerNet.connections.find(value => value.router === router)) {
+            let interfaceCommunDestino: Interface;
+            router.interfaces.forEach(interfaceEnlace => {
+              if (routerNet.interfaces.find(intDest => interfaceEnlace.red.subred === intDest.red.subred)) {
+                interfaceCommunDestino = routerNet.interfaces.find(intDest => interfaceEnlace.red.subred === intDest.red.subred);
+              }
+            });
+            routingTable.push({
+              redDestino: net.subred,
+              puertaEnlace: interfaceCommunDestino.red.ipRouter,
+              mask: this.maskDecimal
+            });
+          } else {
+            routerNet.connections.forEach(value => {
+              routersWithNet.push(value.router);
+            });
+          }
+        });
+        console.log('routing table', routingTable);
       });
-      console.log(routersWithNet);
     }
+    return routingTable;
   }
 }
