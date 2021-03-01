@@ -377,30 +377,43 @@ export class AppComponent {
     console.log('outNets', outNets);
     if (outNets && outNets.length > 0) {
       outNets.forEach(net => {
-        let routersWithNet: Router[];
-        routersWithNet = this.routers.filter(value => value !== router);
-        console.log('routers with net', routersWithNet);
-
-        routersWithNet.forEach(routerNet => {
-          if (routerNet.connections.find(value => value.router === router)) {
-            let interfaceCommunDestino: Interface;
-            router.interfaces.forEach(interfaceEnlace => {
-              if (routerNet.interfaces.find(intDest => interfaceEnlace.red.subred === intDest.red.subred)) {
-                interfaceCommunDestino = routerNet.interfaces.find(intDest => interfaceEnlace.red.subred === intDest.red.subred);
-              }
-            });
-            routingTable.push({
-              redDestino: net.subred,
-              puertaEnlace: interfaceCommunDestino.red.ipRouter,
-              mask: this.maskDecimal
-            });
-          } else {
-            routerNet.connections.forEach(value => {
-              routersWithNet.push(value.router);
-            });
+        console.log(`buscando routers para`, net);
+        let routersWithNet = this.routers.filter(value => value !== router);
+        routersWithNet = routersWithNet.filter(rout => rout.interfaces.find(value => value.red.subred === net.subred));
+        let deepCopy = this.routers.filter(value => value !== router);
+        deepCopy = deepCopy.filter(rout => rout.interfaces.find(value => value.red.subred === net.subred));
+        console.log(`todos los routers con la red `, routersWithNet);
+        routersWithNet.forEach(rout => {
+          if (!routingTable.find(rt => rt && rt.redDestino === net.subred)) {
+            routingTable.push(this.createRoutTable(rout, router, net, routingTable));
+            console.log('routing table', routingTable);
           }
         });
-        console.log('routing table', routingTable);
+      });
+    }
+    return routingTable;
+  }
+
+  createRoutTable(routerConfig: Router, otherRouter: Router, redDestino: Subred, routingTables: RoutingTable[]): RoutingTable {
+    let routingTable: RoutingTable;
+    if (!routingTable && routerConfig.connections.find(value => value.router && value.router.nombre === otherRouter.nombre)) {
+      const interfaces: Interface[] = [];
+      routerConfig.interfaces.forEach(inter => {
+        if (otherRouter.interfaces.find(value => value.red.subred === inter.red.subred)) {
+          interfaces.push(inter);
+        }
+      });
+      console.log('interfaz con la red de ruter con acceso', interfaces);
+      routingTable = {
+        mask: this.maskDecimal,
+        puertaEnlace: interfaces[0].red.ipRouter,
+        redDestino: redDestino.subred
+      };
+    } else {
+      routerConfig.connections.forEach(con => {
+        if (!routingTable && con.router) {
+          routingTable = this.createRoutTable(con.router, otherRouter, redDestino, routingTables);
+        }
       });
     }
     return routingTable;
