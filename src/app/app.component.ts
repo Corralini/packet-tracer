@@ -17,6 +17,9 @@ export class AppComponent {
   constructor(private modalService: NgbModal) {
   }
 
+  numHost = new FormControl('');
+  numNets = new FormControl('');
+
   ip = new FormControl('');
   mask = new FormControl('');
   letters = 'abcdefghijklmnopqrstuvwxyz';
@@ -30,6 +33,17 @@ export class AppComponent {
   selectedRouter: Router;
   config: string;
 
+  calculateIp(): void {
+    if (this.numHost && this.numNets) {
+      let contHosts = 0;
+      let contNets = 0;
+      while (Math.pow(2, contHosts) - 2 < this.numHost.value) {
+        contHosts++;
+      }
+    } else {
+      console.error('Datos obligatorios');
+    }
+  }
 
   calculateMask(): void {
     this.maskDecimal = '';
