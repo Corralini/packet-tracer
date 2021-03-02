@@ -1,0 +1,112 @@
+<form class="mt-2 ml-1">
+  <div class="form-row align-items-center">
+    <div class="col-auto">
+      <label class="sr-only" for="host">Número de hosts</label>
+      <input [formControl]="numHost" type="number" class="form-control mb-2" id="host" placeholder="Número de hosts">
+    </div>
+    <div class="col-auto">
+      <label class="sr-only" for="subnets">Numero de subredes</label>
+      <input [formControl]="numNets" type="number" class="form-control mb-2" id="subnets"
+             placeholder="Número de subredes">
+    </div>
+    <div class="col-auto">
+      <buttona type="button" class="btn btn-primary mb-2" *ngIf="routers.length === 0" (click)="calculateIp()">Calcular
+      </buttona>
+    </div>
+  </div>
+  <div class="form-row align-items-center">
+    <div class="col-auto">
+      <label class="sr-only" for="ip">Ip</label>
+      <input [formControl]="ip" type="text" class="form-control mb-2" id="ip" placeholder="xxx.xxx.xxx.0">
+    </div>
+    <div class="col-auto">
+      <label class="sr-only" for="mask">///</label>
+      <input [formControl]="mask" type="text" class="form-control mb-2" id="mask" placeholder="xx">
+    </div>
+    <div class="col-auto">
+      <button type="button" class="btn btn-primary mb-2" *ngIf="routers.length === 0" (click)="init()">Crear router
+      </button>
+      <button type="button" class="btn btn-primary mb-2" *ngIf="routers.length > 0" (click)="restart()">Reset
+      </button>
+    </div>
+  </div>
+</form>
+<p *ngIf="maskDecimal">Máscara decimal: {{maskDecimal}}</p>
+<br>
+<ngb-accordion #acc="ngbAccordion">
+  <ngb-panel *ngFor="let router of routers; let idx = index" [title]="router.nombre">
+    <ng-template ngbPanelContent>
+      <button type="button" class="btn btn-primary mb-2" *ngIf="router.interfaces.length > 0"
+              (click)="generatePacketTraceCommands(router, packet)">Configuración Packet Tracer
+      </button>
+      <p><b>Interfaces:</b></p>
+      <div *ngFor="let interfaz of router.interfaces; let interfaceIdx = index">
+        <p>
+          <button type="button" class="btn btn-outline-primary" (click)="interfaz.show = !interfaz.show"
+                  aria-controls="collapseExample">
+            {{interfaz.nombre}}
+          </button>
+        </p>
+
+        <div #collapse="ngbCollapse" [(ngbCollapse)]="!interfaz.show">
+          <div class="card">
+            <div class="card-body">
+              <p>Máscara: {{interfaz.mask}}</p>
+              <p>Subred: {{interfaz.red.subred}}</p>
+              <p>Nombre: {{interfaz.red.nombre}}</p>
+              <p>Broadcast: {{interfaz.red.broadcast}}</p>
+              <p>Ip Router: {{interfaz.red.ipRouter}}</p>
+              <p>Ip Primer Equipo: {{interfaz.red.firstIp}}</p>
+              <p>Ip ültimo Equipo: {{interfaz.red.lastIp}}</p>
+              <button *ngIf="!interfaz.disableLinkRouter" (click)="createAssociatedRouterInterface(idx, interfaceIdx)"
+                      class="btn btn-primary mb-2">Crear router asociado a la
+                interfaz {{interfaz.nombre}}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p><b>Conexiones:</b></p>
+      <div *ngFor="let connection of router.connections">
+        <div *ngIf="connection.router">
+          <p>- {{connection.router.nombre}}</p>
+        </div>
+        <div *ngIf="connection.red">
+          <p>
+            <button type="button" class="btn btn-outline-primary" (click)="connection.show = !connection.show"
+                    aria-controls="collapseExample">
+              {{connection.red.red.nombre}}
+            </button>
+          </p>
+
+          <div #collapse="ngbCollapse" [(ngbCollapse)]="!connection.show">
+            <div class="card">
+              <div class="card-body">
+                <p>Red: {{connection.red.red.subred}}</p>
+                <p>Broadcast: {{connection.red.red.broadcast}}</p>
+                <p>Ip router: {{connection.red.red.ipRouter}}</p>
+                <p>Primera ip: {{connection.red.red.firstIp}}</p>
+                <p>Última ip: {{connection.red.red.lastIp}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button (click)="createAssociatedRouter(idx)" class="btn btn-primary mb-2">Crear router asociado</button>
+      <button (click)="createAssociatedNet(idx)" class="btn btn-primary mb-2 ml-2">Crear red de equipos</button>
+    </ng-template>
+  </ngb-panel>
+</ngb-accordion>
+
+
+<ng-template #packet let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{selectedRouter.nombre}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <pre>{{config}}</pre>
+  </div>
+</ng-template>
