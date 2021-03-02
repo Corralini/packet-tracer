@@ -35,11 +35,48 @@ export class AppComponent {
 
   calculateIp(): void {
     if (this.numHost && this.numNets) {
-      let contHosts = 0;
-      let contNets = 0;
-      while (Math.pow(2, contHosts) - 2 < this.numHost.value) {
-        contHosts++;
+      let countNets = 0;
+      let countHosts = 0;
+      let pow = Math.pow(2, countNets) - 2;
+      while ( pow <= this.numNets.value) {
+        countNets++;
+        pow = Math.pow(2, countNets) - 2;
       }
+      if (countNets > 0 && countNets < 8) {
+        countHosts = 8 - countNets;
+
+        if (Math.pow(2, countHosts) <= this.numNets.value) {
+          this.ipType = 'C';
+        } else {
+          this.ipType = 'B';
+        }
+      } else if (countNets < 16) {
+        countHosts = 16 - countNets;
+        if (Math.pow(2, countHosts) <= this.numNets.value) {
+          this.ipType = 'B';
+        } else {
+          this.ipType = 'A';
+        }
+      } else {
+        countHosts = 24 - countNets;
+        if (Math.pow(2, countHosts) <= this.numNets.value) {
+          this.ipType = 'A';
+        } else {
+          console.error('Demasiadas subredes');
+        }
+      }
+
+      if (this.ipType === 'C') {
+        this.ip.setValue('192.168.100.0');
+      } else if (this.ipType === 'B') {
+        this.ip.setValue('140.140.0.0');
+      } else {
+        this.ip.setValue('10.0.0.0');
+      }
+
+      this.mask.setValue(32 - countNets);
+
+
     } else {
       console.error('Datos obligatorios');
     }
