@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {FormControl} from '@angular/forms';
 import {Router} from '../../../common/model/router';
 import {Subred} from '../../../common/model/subred';
 import {Interface} from '../../../common/model/interface';
 import {RoutingTable} from '../../../common/model/RoutingTable';
+import {SnotifyPosition, SnotifyService, SnotifyToastConfig} from 'ng-snotify';
 
 @Component({
   selector: 'app-static-mask',
@@ -13,7 +14,15 @@ import {RoutingTable} from '../../../common/model/RoutingTable';
 })
 export class StaticMaskComponent {
 
-  constructor(private modalService: NgbModal) {
+  configNotify: SnotifyToastConfig = {
+    timeout: 2000,
+    showProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    position: SnotifyPosition.rightTop
+  };
+
+  constructor(private modalService: NgbModal, private snotifyServce: SnotifyService) {
   }
 
   numRedes = new FormControl('');
@@ -32,12 +41,13 @@ export class StaticMaskComponent {
   selectedRouter: Router;
   config: string;
 
+
   calculateIp(): void {
     if (this.numRedes && this.numHost) {
       let countNets = 0;
       let countHosts = 0;
       let pow = Math.pow(2, countNets) - 2;
-      while ( pow <= this.numHost.value) {
+      while (pow <= this.numHost.value) {
         countNets++;
         pow = Math.pow(2, countNets) - 2;
       }
@@ -61,7 +71,7 @@ export class StaticMaskComponent {
         if (Math.pow(2, countHosts) >= this.numRedes.value) {
           this.ipType = 'A';
         } else {
-          console.error('Demasiadas subredes');
+          this.snotifyServce.error('Demasiadas subredes', 'Error', this.configNotify);
         }
       }
 
@@ -77,7 +87,7 @@ export class StaticMaskComponent {
 
 
     } else {
-      console.error('Datos obligatorios');
+      this.snotifyServce.error('Datos obligatorios', 'Error', this.configNotify);
     }
   }
 
@@ -90,7 +100,6 @@ export class StaticMaskComponent {
         this.maskDecimal += '.';
       }
     }
-    console.log('mascara' + this.maskDecimal);
   }
 
   calculateType(): void {
@@ -118,7 +127,6 @@ export class StaticMaskComponent {
     }
 
 
-    console.log(states);
     return states;
 
   }
@@ -130,7 +138,6 @@ export class StaticMaskComponent {
       maskAux += this.netmask.substring(i, i + 8) + '.';
     }
 
-    console.log(maskAux);
 
     let subredIp: string;
     let broadcastIp: string;
@@ -138,7 +145,6 @@ export class StaticMaskComponent {
     let broadcastBinary: string[];
 
     if (this.ipType === 'A') {
-      console.log('tipo A');
       base = this.ip.value.split('.')[0];
       hostBinary = this.generateStates((maskAux.split('.')[1] + maskAux.split('.')[2] + maskAux.split('.')[3])
         .split(1).length, 24);
@@ -155,7 +161,6 @@ export class StaticMaskComponent {
 
 
     } else if (this.ipType === 'B') {
-      console.log('tipo B');
       base = this.ip.value.split('.')[0] + '.' + this.ip.value.split('.')[1];
       hostBinary = this.generateStates((maskAux.split('.')[2] + maskAux.split('.')[3]).split(1).length, 16);
       broadcastBinary = this.generateStates((maskAux.split('.')[2] + maskAux.split('.')[3]).split(1).length, 16, true);
@@ -169,7 +174,6 @@ export class StaticMaskComponent {
       });
 
     } else {
-      console.log('tipo C');
       base = this.ip.value.split('.')[0] + '.' + this.ip.value.split('.')[1] + '.' + this.ip.value.split('.')[2];
       hostBinary = this.generateStates(maskAux.split('.')[3].split(1).length, 8);
       broadcastBinary = this.generateStates(maskAux.split('.')[3].split(1).length, 8, true);
@@ -183,7 +187,6 @@ export class StaticMaskComponent {
     }
 
 
-    console.log(this.subredIps);
   }
 
   createSubnet(subredIp: string, broadcastIp: string): void {
@@ -216,7 +219,6 @@ export class StaticMaskComponent {
   }
 
   createRouter(): Router {
-    console.log('create router', this.ip.value, this.mask.value);
     const router: Router = {
       nombre: 'Router' + this.letters.charAt(this.routerIdx).toUpperCase(),
       interfaces: [],
@@ -227,13 +229,7 @@ export class StaticMaskComponent {
     return router;
   }
 
-  /*  deleteRouter(indx: number): void {
-      console.log('Borrando ' + indx);
-      this.routers.splice(indx, 1);
-    }*/
-
   createAssociatedRouter(indx: number): void {
-    console.log('Crear router asociado');
     if (this.subredIps.filter(s => s.used === false)[0]) {
       const newRouter: Router = this.createRouter();
       const routerAsociado = this.routers[indx];
@@ -246,12 +242,11 @@ export class StaticMaskComponent {
       routerAsociado.interfaces.push(this.configureNewRouterIterface({...interfazNewRouter}, routerAsociado.interfaces.length, true));
 
     } else {
-      console.error('No quedan subredes disponibles');
+      this.snotifyServce.error('No quedan subredes disponibles', 'Error', this.configNotify);
     }
   }
 
   createAssociatedNet(indx: number): void {
-    console.log('Create red asociada');
     if (this.subredIps.filter(s => s.used === false)[0]) {
       const routerAsociado = this.routers[indx];
       const interfaz = this.createInterface();
@@ -260,12 +255,11 @@ export class StaticMaskComponent {
       routerAsociado.interfaces.push({...interfaz});
       routerAsociado.connections.push({red: interfaz, show: false});
     } else {
-      console.error('No quedan subredes disponibles');
+      this.snotifyServce.error('No quedan subredes disponibles', 'Error', this.configNotify);
     }
   }
 
   createInterface(): Interface {
-    console.log('Create interface');
     const subred = this.subredIps.filter(s => s.used === false)[0];
     this.subredIps.filter(sub => sub.subred === subred.subred)[0].used = true;
     return {
@@ -298,7 +292,7 @@ export class StaticMaskComponent {
       if (p3 === 255) {
         if (p2 === 255) {
           if (p1 === 255) {
-            console.error('Estás en la última IP');
+            this.snotifyServce.error('Se ha alcanzado la última IP', 'Error', this.configNotify);
           } else {
             p1 += 1;
             p2 = 0;
@@ -331,7 +325,7 @@ export class StaticMaskComponent {
       if (p3 === 0) {
         if (p2 === 0) {
           if (p1 === 0) {
-            console.error('Estás en la primera IP');
+            this.snotifyServce.error('Se ha alcanzado la primera IP', 'Error', this.configNotify);
           } else {
             p1 -= 1;
             p2 = 255;
@@ -355,7 +349,6 @@ export class StaticMaskComponent {
   }
 
   createAssociatedRouterInterface(idx: number, interfaceIdx: number): void {
-    console.log('Crear router asociado a interfaz');
     const routerAsociado = this.routers[idx];
     const interdazAsociada = routerAsociado.interfaces[interfaceIdx];
     if (this.subredIps.filter(s => s.used === false)[0]) {
@@ -375,7 +368,7 @@ export class StaticMaskComponent {
         );
       });
     } else {
-      console.error('No quedan subredes disponibles');
+      this.snotifyServce.error('No quedan subredes disponibles', 'Error', this.configNotify);
     }
   }
 
@@ -386,7 +379,6 @@ export class StaticMaskComponent {
   }
 
   generatePacketTraceCommands(router: Router, modal: any): void {
-    console.log('Generando codigo packet tracer');
     this.config = 'en \n';
     router.interfaces.forEach(value => {
       this.config += 'conf t \n';
@@ -400,7 +392,6 @@ export class StaticMaskComponent {
       this.config += `ip route ${routingTable.redDestino} ${routingTable.mask} ${routingTable.puertaEnlace} \n`;
     });
     this.config += 'exit \n';
-    console.log(this.config);
     this.selectedRouter = router;
     this.openModal(modal);
 
@@ -424,19 +415,15 @@ export class StaticMaskComponent {
     router.interfaces.forEach(interfaceRouter => {
       outNets = outNets.filter(usNet => usNet.subred !== interfaceRouter.red.subred);
     });
-    console.log('outNets', outNets);
     if (outNets && outNets.length > 0) {
       outNets.forEach(net => {
-        console.log(`buscando routers para`, net);
         let routersWithNet = this.routers.filter(value => value !== router);
         routersWithNet = routersWithNet.filter(rout => rout.interfaces.find(value => value.red.subred === net.subred));
         let deepCopy = this.routers.filter(value => value !== router);
         deepCopy = deepCopy.filter(rout => rout.interfaces.find(value => value.red.subred === net.subred));
-        console.log(`todos los routers con la red `, routersWithNet);
         routersWithNet.forEach(rout => {
           if (!routingTable.find(rt => rt && rt.redDestino === net.subred)) {
             routingTable.push(this.createRoutTable(rout, router, net, routingTable));
-            console.log('routing table', routingTable);
           }
         });
       });
@@ -453,7 +440,6 @@ export class StaticMaskComponent {
           interfaces.push(inter);
         }
       });
-      console.log('interfaz con la red de ruter con acceso', interfaces);
       routingTable = {
         mask: this.maskDecimal,
         puertaEnlace: interfaces[0].red.ipRouter,

@@ -9,6 +9,7 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { HeaderComponent } from './components/header/header.component';
 import { PublicComponent } from './public.component';
 import { FooterComponent } from './components/footer/footer.component';
+import {SnotifyModule, SnotifyService, ToastDefaults} from 'ng-snotify';
 
 
 @NgModule({
@@ -17,8 +18,10 @@ import { FooterComponent } from './components/footer/footer.component';
     CommonModule,
     ReactiveFormsModule,
     NgbModule,
-    PublicRoutingModule
+    PublicRoutingModule,
+    SnotifyModule
   ]
+
 })
 export class PublicModule {
 }

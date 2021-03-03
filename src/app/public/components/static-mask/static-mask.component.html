@@ -2,12 +2,12 @@
   <div class="form-row align-items-center">
     <div class="col-auto">
       <label class="sr-only" for="host">Número de subredes</label>
-      <input [formControl]="numRedes" type="number" class="form-control mb-2" id="host" placeholder="Número de hosts">
+      <input [formControl]="numRedes" type="number" class="form-control mb-2" id="host" placeholder="Número de subredes">
     </div>
     <div class="col-auto">
       <label class="sr-only" for="subnets">Numero de hosts</label>
       <input [formControl]="numHost" type="number" class="form-control mb-2" id="subnets"
-             placeholder="Número de subredes">
+             placeholder="Número de hosts">
     </div>
     <div class="col-auto">
       <button type="button" class="btn btn-primary mb-2" *ngIf="routers.length === 0" (click)="calculateIp()">Calcular
