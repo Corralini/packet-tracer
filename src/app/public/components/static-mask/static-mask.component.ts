@@ -16,8 +16,8 @@ export class StaticMaskComponent {
   constructor(private modalService: NgbModal) {
   }
 
+  numRedes = new FormControl('');
   numHost = new FormControl('');
-  numNets = new FormControl('');
 
   ip = new FormControl('');
   mask = new FormControl('');
@@ -33,32 +33,32 @@ export class StaticMaskComponent {
   config: string;
 
   calculateIp(): void {
-    if (this.numHost && this.numNets) {
+    if (this.numRedes && this.numHost) {
       let countNets = 0;
       let countHosts = 0;
       let pow = Math.pow(2, countNets) - 2;
-      while ( pow <= this.numNets.value) {
+      while ( pow <= this.numHost.value) {
         countNets++;
         pow = Math.pow(2, countNets) - 2;
       }
       if (countNets > 0 && countNets < 8) {
         countHosts = 8 - countNets;
 
-        if (Math.pow(2, countHosts) >= this.numHost.value) {
+        if (Math.pow(2, countHosts) >= this.numRedes.value) {
           this.ipType = 'C';
         } else {
           this.ipType = 'B';
         }
       } else if (countNets < 16) {
         countHosts = 16 - countNets;
-        if (Math.pow(2, countHosts) >= this.numHost.value) {
+        if (Math.pow(2, countHosts) >= this.numRedes.value) {
           this.ipType = 'B';
         } else {
           this.ipType = 'A';
         }
       } else {
         countHosts = 24 - countNets;
-        if (Math.pow(2, countHosts) >= this.numHost.value) {
+        if (Math.pow(2, countHosts) >= this.numRedes.value) {
           this.ipType = 'A';
         } else {
           console.error('Demasiadas subredes');
