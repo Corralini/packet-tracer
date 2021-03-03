@@ -1,21 +1,21 @@
 <form class="mt-2 ml-1">
   <div class="form-row align-items-center">
     <div class="col-auto">
-      <label class="sr-only" for="host">Número de hosts</label>
-      <input [formControl]="numHost" type="number" class="form-control mb-2" id="host" placeholder="Número de hosts">
+      <label class="sr-only" for="host">Número de subredes</label>
+      <input [formControl]="numRedes" type="number" class="form-control mb-2" id="host" placeholder="Número de hosts">
     </div>
     <div class="col-auto">
-      <label class="sr-only" for="subnets">Numero de subredes</label>
-      <input [formControl]="numNets" type="number" class="form-control mb-2" id="subnets"
+      <label class="sr-only" for="subnets">Numero de hosts</label>
+      <input [formControl]="numHost" type="number" class="form-control mb-2" id="subnets"
              placeholder="Número de subredes">
     </div>
     <div class="col-auto">
-      <buttona type="button" class="btn btn-primary mb-2" *ngIf="routers.length === 0" (click)="calculateIp()">Calcular
-      </buttona>
+      <button type="button" class="btn btn-primary mb-2" *ngIf="routers.length === 0" (click)="calculateIp()">Calcular
+      </button>
     </div>
-  </div>
-  <div class="form-row align-items-center">
-    <div class="col-auto">
+<!--  </div>-->
+<!--  <div class="form-row align-items-center">-->
+    <div class="col-auto ml-5">
       <label class="sr-only" for="ip">Ip</label>
       <input [formControl]="ip" type="text" class="form-control mb-2" id="ip" placeholder="xxx.xxx.xxx.0">
     </div>
